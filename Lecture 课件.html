@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management Core Concepts: From Needs to Delivery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: This app is designed as a single-page, scrollable learning journey with quick navigation via a top bar. The structure flows from Product Vision -> User Story Mapping -> Product Backlog -> PMBOK Link. This top-down structure (from a macro vision to specific practices) aligns with learning and product development logic, helping users build a clear knowledge framework. By transforming static text into interactive charts and templates, the goal is to deepen user understanding and retention of core concepts like layering, slicing, and prioritization. -->
+    <!-- Visualization & Content Choices: 
+        1. Product Vision: (Goal: Organize & Inform) -> Interactive template (HTML/JS). Users click to see an example, making abstract concepts concrete and enhancing understanding.
+        2. ✨Product Vision Generator✨: (Goal: Creative Generation & Practice) -> Text input with AI generation (HTML/JS/Gemini API). Users input a product idea, and the AI generates a vision statement based on the Geoffrey Moore template, providing instant practical feedback.
+        3. User Story Mapping: (Goal: Organize & Show Change) -> Custom collapsible diagram (HTML/JS). Users click to explore the 'Backbone-Walking Skeletons-Stories' structure layer by layer and toggle 'Release Slices' to visualize version planning, which is key to understanding story mapping.
+        4. ✨User Story Refinement Suggestions✨: (Goal: Divergent Thinking & Inspiration) -> Button-triggered AI generation (HTML/JS/Gemini API). The AI generates more user story suggestions for a specific user step, helping users understand the variety of requirements.
+        5. Product Backlog: (Goal: Compare & Organize) -> Interactive MoSCoW filter (HTML/JS). Users actively filter to practice and understand prioritization methods, which is more engaging than a pure text description.
+        6. PMBOK Linkage: (Goal: Establish Relationships) -> Card layout (HTML). Clearly presents the connections between concepts side-by-side for easy comparison and recall.
+        All choices aim to transform the teaching content into an active exploration process to improve learning outcomes. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #FDFBF6;
+            color: #3C3633;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #AD8B73;
+            border-bottom-color: #AD8B73;
+        }
+        .section-title {
+            color: #7A6F64;
+        }
+        .card {
+            background-color: #FFF;
+            border: 1px solid #E5E1DA;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        .btn-primary {
+            background-color: #AD8B73;
+            color: #FFF;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #93745f;
+        }
+        .btn-secondary {
+            background-color: #E5E1DA;
+            color: #7A6F64;
+            transition: background-color 0.3s;
+        }
+        .btn-secondary.active {
+            background-color: #AD8B73;
+            color: #FFF;
+        }
+        .story-map-activity { background-color: #F0EBE3; }
+        .story-map-step { background-color: #e8e2d9; }
+        .story-map-story { background-color: #ffffff; border-left: 4px solid #AD8B73; }
+        .release-slice {
+            border-top: 2px dashed #AD8B73;
+            transition: opacity 0.5s;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #AD8B73;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-[#7A6F64]">Product Management Core Concepts</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#vision" class="nav-link pb-1">Product Vision</a>
+                <a href="#story-map" class="nav-link pb-1">Story Mapping</a>
+                <a href="#backlog" class="nav-link pb-1">Backlog</a>
+                <a href="#pmbok" class="nav-link pb-1">PMBOK Linkage</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <section id="intro" class="text-center mb-24">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">From Disconnected 'Stories' to a Complete 'Map'</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                This app will guide you through the core process of product management. We'll start with defining an inspiring product vision, learn how to use user story mapping to organize requirements, and finally, build and manage an ordered product backlog. Let's begin this journey from requirements to delivery!
+            </p>
+        </section>
+
+        <section id="vision" class="mb-24 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2 section-title">1. Product Vision</h3>
+            <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">The product vision is a long-term, ambitious, and inspiring description of the product's future state. It answers the core question of "Why are we building this product?" and provides direction, unity, and guidance for all decisions.</p>
+            
+            <div class="card p-8 rounded-lg max-w-4xl mx-auto mb-12">
+                <h4 class="text-2xl font-semibold mb-6 text-center">Product Vision Statement Template (Geoffrey Moore)</h4>
+                <div class="text-lg space-y-4 text-gray-700">
+                    <p><strong class="text-[#AD8B73]">For</strong> [Target Customer]</p>
+                    <p><strong class="text-[#AD8B73]">Who</strong> [has a specific need or pain point]</p>
+                    <p><strong class="text-[#AD8B73]">The</strong> [Product Name] <strong class="text-[#AD8B73]">is a</strong> [Product Category]</p>
+                    <p><strong class="text-[#AD8B73]">That</strong> [key benefit/problem it solves]</p>
+                    <p><strong class="text-[#AD8B73]">Unlike</strong> [main competitor]</p>
+                    <p><strong class="text-[#AD8B73]">Our product</strong> [core differentiated advantage]</p>
+                </div>
+                <div class="text-center mt-8">
+                    <button id="vision-example-btn" class="btn-primary py-2 px-6 rounded-lg font-semibold">View Uber Example</button>
+                </div>
+                <div id="vision-example" class="hidden mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <p class="text-lg text-gray-800">
+                        “<strong class="text-[#AD8B73]">For</strong> urban residents seeking a convenient way to travel, <strong class="text-[#AD8B73]">Who</strong> are tired of traffic congestion and parking difficulties, <strong class="text-[#AD8B73]">The</strong> Uber <strong class="text-[#AD8B73]">is an</strong> on-demand ride service, <strong class="text-[#AD8B73]">That</strong> connects passengers and drivers via a mobile app, providing a convenient and efficient travel experience. <strong class="text-[#AD8B73]">Unlike</strong> traditional taxis, <strong class="text-[#AD8B73]">Our product</strong> offers more flexible scheduling, transparent pricing, and personalized service.”
+                    </p>
+                </div>
+            </div>
+
+            <div class="card p-8 rounded-lg max-w-4xl mx-auto">
+                <h4 class="text-2xl font-semibold mb-6 text-center">✨Product Vision Generator✨</h4>
+                <p class="text-gray-600 mb-4">Enter your product idea, and let the AI generate a preliminary product vision statement for you:</p>
+                <textarea id="product-idea-input" class="w-full p-3 border border-gray-300 rounded-md focus:ring-[#AD8B73] focus:border-[#AD8B73] mb-4" rows="4" placeholder="e.g., A mobile app to help college students manage their courses and assignments"></textarea>
+                <div class="text-center mb-4">
+                    <button id="generate-vision-btn" class="btn-primary py-2 px-6 rounded-lg font-semibold">Generate Product Vision</button>
+                </div>
+                <div id="vision-generator-loading" class="hidden text-center mt-4">
+                    <div class="loading-spinner mx-auto"></div>
+                    <p class="text-gray-500 mt-2">AI is working hard to think...</p>
+                </div>
+                <div id="generated-vision-output" class="hidden mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200 text-gray-800 whitespace-pre-wrap">
+                    <!-- Generated vision will be inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <section id="story-map" class="mb-24 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2 section-title">2. User Story Mapping</h3>
+            <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">User story mapping is a visualization tool that organizes user stories according to the user journey to present the full picture of the product. This helps us see the user path, discover missing features, and plan releases.</p>
+
+            <div class="card p-8 rounded-lg max-w-6xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h4 class="text-2xl font-semibold">E-commerce Platform Story Map (Interactive)</h4>
+                    <div>
+                        <label for="release-toggle" class="mr-2 font-medium">Display Release Slices:</label>
+                        <input type="checkbox" id="release-toggle" class="h-6 w-6 rounded text-[#AD8B73] focus:ring-[#AD8B73]">
+                    </div>
+                </div>
+                <p class="mb-6 text-gray-600">Click the 'User Activity' below to expand or collapse the corresponding 'User Steps' and 'User Stories'. Click the 'Get More Stories' button to get more user story suggestions from the AI.</p>
+
+                <div id="story-map-container" class="w-full overflow-x-auto relative">
+                    <div class="grid grid-cols-5 gap-4 min-w-[1000px]">
+                    </div>
+                    <div id="slice-container" class="absolute top-0 left-0 w-full h-full pointer-events-none"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="backlog" class="mb-24 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2 section-title">3. Product Backlog</h3>
+            <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">The product backlog is an ordered list of all known product requirements, and it is the sole source of work for the development team. It is a dynamic and continuously refined artifact, and prioritization is crucial.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card p-8 rounded-lg">
+                    <h4 class="text-2xl font-semibold mb-6 text-center">DEEP Principles</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="text-2xl font-bold text-[#AD8B73] mr-4">D</span>
+                            <div>
+                                <h5 class="font-bold">Detailed appropriately</h5>
+                                <p class="text-gray-600">High-priority items have more details, while low-priority items are more general.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl font-bold text-[#AD8B73] mr-4">E</span>
+                            <div>
+                                <h5 class="font-bold">Estimated</h5>
+                                <p class="text-gray-600">All items have an estimated effort from the team.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl font-bold text-[#AD8B73] mr-4">E</span>
+                            <div>
+                                <h5 class="font-bold">Emergent</h5>
+                                <p class="text-gray-600">The list is dynamic and changes as understanding evolves.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl font-bold text-[#AD8B73] mr-4">P</span>
+                            <div>
+                                <h5 class="font-bold">Prioritized</h5>
+                                <p class="text-gray-600">All items are ranked based on factors like value and risk.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card p-8 rounded-lg">
+                    <h4 class="text-2xl font-semibold mb-6 text-center">Prioritization Practice (MoSCoW)</h4>
+                    <p class="text-gray-600 mb-4">Click the buttons below to filter and view backlog items by priority.</p>
+                    <div id="moscow-filters" class="flex flex-wrap gap-2 mb-4">
+                        <button data-priority="all" class="btn-secondary active px-4 py-1 rounded-full text-sm">All</button>
+                        <button data-priority="must" class="btn-secondary px-4 py-1 rounded-full text-sm">Must Have</button>
+                        <button data-priority="should" class="btn-secondary px-4 py-1 rounded-full text-sm">Should Have</button>
+                        <button data-priority="could" class="btn-secondary px-4 py-1 rounded-full text-sm">Could Have</button>
+                    </div>
+                    <div id="backlog-items" class="space-y-2 h-64 overflow-y-auto pr-2">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pmbok" class="scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2 section-title">4. PMBOK® Linkage</h3>
+            <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">Agile product management practices are closely linked to the performance domains and artifacts in the PMBOK® Guide, forming a complete framework for value delivery.</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card p-6 rounded-lg">
+                    <h4 class="text-xl font-bold mb-3">Planning Performance Domain</h4>
+                    <p class="text-gray-600">The refinement of requirements and the construction of the product backlog are core to the planning process. This aligns with PMBOK's emphasis on iterative and incremental planning.</p>
+                </div>
+                <div class="card p-6 rounded-lg">
+                    <h4 class="text-xl font-bold mb-3">Delivery Performance Domain</h4>
+                    <p class="text-gray-600">The user story map and product backlog collectively define the product's "scope." A clear definition of requirements is a prerequisite for effective delivery.</p>
+                </div>
+                <div class="card p-6 rounded-lg">
+                    <h4 class="text-xl font-bold mb-3">Strategic Artifacts</h4>
+                    <p class="text-gray-600">The product vision statement is a key strategic artifact that guides the product's direction. The 'release slices' of the story map are a preliminary form of the product roadmap, breaking down the strategy into actionable plans.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white mt-24">
+        <div class="container mx-auto px-6 py-4 text-center text-gray-500">
+            <p>&copy; 2025 Interactive Product Management Learning App. Content based on teaching objectives.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const storyMapData = [
+        {
+            activity: 'Login/Register',
+            steps: [
+                {
+                    name: 'Register Account',
+                    stories: [
+                        { text: 'As a new user, I want to be able to register with my phone number, so that I can quickly create an account.', release: 'mvp' },
+                        { text: 'As a new user, I want to be able to register with my email address, so that I have a secure login option.', release: 'v1' },
+                    ]
+                },
+                {
+                    name: 'Login',
+                    stories: [
+                        { text: 'As a user, I want to log in with my phone number and password, so that I can access my account.', release: 'mvp' },
+                        { text: 'As a user, I want to be able to log in quickly using WeChat, so that the process is more convenient.', release: 'v2' },
+                    ]
+                }
+            ]
+        },
+        {
+            activity: 'Browse Products',
+            steps: [
+                {
+                    name: 'Search Products',
+                    stories: [
+                        { text: 'As a buyer, I want to be able to search for products by keyword, so that I can find what I need quickly.', release: 'mvp' },
+                        { text: 'As a buyer, I want to be able to filter products by category, so that I can narrow down my choices.', release: 'mvp' },
+                        { text: 'As a buyer, I want to be able to sort products by price, so that I can find items within my budget.', release: 'v1' },
+                    ]
+                },
+                {
+                    name: 'View Details',
+                    stories: [
+                        { text: 'As a buyer, I want to see high-resolution product images, so that I can inspect the product quality.', release: 'mvp' },
+                        { text: 'As a buyer, I want to see other users\' reviews, so that I can make an informed purchasing decision.', release: 'mvp' },
+                        { text: 'As a buyer, I want to see the product\'s detailed specifications, so that I can understand its features.', release: 'v1' },
+                    ]
+                },
+                {
+                    name: 'Add to Cart',
+                    stories: [
+                        { text: 'As a buyer, I want to be able to add a product to my shopping cart, so that I can purchase it later.', release: 'mvp' },
+                    ]
+                }
+            ]
+        },
+        {
+            activity: 'Post Products',
+            steps: [
+                {
+                    name: 'Fill in Info',
+                    stories: [
+                        { text: 'As a seller, I want to be able to fill in a product\'s title and description, so that I can list it for sale.', release: 'v1' },
+                        { text: 'As a seller, I want to be able to upload product images, so that buyers can see what they are purchasing.', release: 'v1' },
+                    ]
+                },
+                {
+                    name: 'Set Price',
+                    stories: [
+                        { text: 'As a seller, I want to be able to set the price and inventory for my product, so that I can manage my listings.', release: 'v1' },
+                    ]
+                }
+            ]
+        },
+        {
+            activity: 'Transaction',
+            steps: [
+                {
+                    name: 'Place Order',
+                    stories: [
+                        { text: 'As a buyer, I want to be able to place an order for items in my cart, so that I can buy them.', release: 'mvp' },
+                        { text: 'As a buyer, I want to be able to enter my shipping address, so that the product can be delivered to me.', release: 'mvp' },
+                    ]
+                },
+                {
+                    name: 'Payment',
+                    stories: [
+                        { text: 'As a buyer, I want to be able to pay with Alipay, so that I can complete my purchase.', release: 'mvp' },
+                        { text: 'As a buyer, I want to be able to pay with WeChat Pay, so that I have more payment options.', release: 'v1' },
+                        { text: 'As a buyer, I want to be able to pay with a credit card, so that I can use my preferred payment method.', release: 'v2' },
+                    ]
+                }
+            ]
+        },
+        {
+            activity: 'Review',
+            steps: [
+                {
+                    name: 'Leave a Review',
+                    stories: [
+                        { text: 'As a buyer, I want to be able to leave a review for a completed order, so that I can share my experience.', release: 'v1' },
+                        { text: 'As a buyer, I want to be able to rate a product, so that other buyers can see its quality.', release: 'v1' },
+                    ]
+                },
+                {
+                    name: 'View Reviews',
+                    stories: [
+                        { text: 'As a seller, I want to be able to see the reviews left by buyers, so that I can improve my products and service.', release: 'v1' },
+                    ]
+                }
+            ]
+        }
+    ];
+
+    const backlogData = [
+        { text: 'User logs in with phone number and password', priority: 'must' },
+        { text: 'User searches for products by keyword', priority: 'must' },
+        { text: 'User views product details and reviews', priority: 'must' },
+        { text: 'User adds to cart and places an order', priority: 'must' },
+        { text: 'User completes payment with Alipay', priority: 'must' },
+        { text: 'User filters products by category', priority: 'should' },
+        { text: 'Seller posts a product (basic functionality)', priority: 'should' },
+        { text: 'User leaves a review for an order', priority: 'should' },
+        { text: 'User pays with WeChat Pay', priority: 'could' },
+        { text: 'User sorts products by price', priority: 'could' },
+        { text: 'User registers with an email address', priority: 'could' },
+    ];
+
+    // Helper function for Gemini API calls with exponential backoff
+    async function callGeminiApi(prompt) {
+        let chatHistory = [];
+        chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+        const payload = { contents: chatHistory };
+        const apiKey = ""; // Canvas will provide this at runtime
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        let retries = 0;
+        const maxRetries = 5;
+        const baseDelay = 1000; // 1 second
+
+        while (retries < maxRetries) {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    if (response.status === 429) { // Too Many Requests
+                        const delay = baseDelay * Math.pow(2, retries);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        retries++;
+                        continue;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    return "Generation failed, please try again later.";
+                }
+            } catch (error) {
+                if (retries < maxRetries - 1) {
+                    const delay = baseDelay * Math.pow(2, retries);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+                retries++;
+            }
+        }
+        return "Generation failed, please check your network or try again later.";
+    }
+
+    // Product Vision Generator Logic
+    const productIdeaInput = document.getElementById('product-idea-input');
+    const generateVisionBtn = document.getElementById('generate-vision-btn');
+    const visionGeneratorLoading = document.getElementById('vision-generator-loading');
+    const generatedVisionOutput = document.getElementById('generated-vision-output');
+
+    generateVisionBtn.addEventListener('click', async () => {
+        const productIdea = productIdeaInput.value.trim();
+        if (!productIdea) {
+            generatedVisionOutput.classList.remove('hidden');
+            generatedVisionOutput.textContent = "Please enter your product idea.";
+            return;
+        }
+
+        visionGeneratorLoading.classList.remove('hidden');
+        generatedVisionOutput.classList.add('hidden');
+        generatedVisionOutput.textContent = ''; // Clear previous output
+
+        const prompt = `Based on the following product idea, generate a product vision statement using Geoffrey Moore's template. Ensure the output strictly follows the template format, including bolding 'For', 'Who', etc., and is presented in English.
+
+Product idea: ${productIdea}
+
+Geoffrey Moore's template:
+For [Target Customer]
+Who [has a specific need or pain point]
+The [Product Name] is a [Product Category]
+That [key benefit/problem it solves]
+Unlike [main competitor]
+Our product [core differentiated advantage]`;
+
+        const generatedText = await callGeminiApi(prompt);
+        
+        visionGeneratorLoading.classList.add('hidden');
+        generatedVisionOutput.classList.remove('hidden');
+        generatedVisionOutput.textContent = generatedText;
+    });
+
+    // Existing Vision Example Button Logic
+    const visionExampleBtn = document.getElementById('vision-example-btn');
+    const visionExample = document.getElementById('vision-example');
+    visionExampleBtn.addEventListener('click', () => {
+        visionExample.classList.toggle('hidden');
+        visionExampleBtn.textContent = visionExample.classList.contains('hidden') ? 'View Uber Example' : 'Hide Uber Example';
+    });
+
+    const storyMapContainer = document.querySelector('#story-map-container .grid');
+    function renderStoryMap() {
+        storyMapContainer.innerHTML = '';
+        storyMapData.forEach((activityData, activityIndex) => {
+            const activityCol = document.createElement('div');
+            activityCol.className = 'flex flex-col gap-2';
+            
+            let stepsHtml = activityData.steps.map((step, stepIndex) => {
+                let storiesHtml = step.stories.map(story => `
+                    <div class="story-map-story p-3 rounded-md shadow-sm text-sm" data-release="${story.release}">
+                        ${story.text}
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="story-map-step p-4 rounded-lg cursor-pointer" data-activity-index="${activityIndex}" data-step-index="${stepIndex}">
+                        <h6 class="font-semibold">${step.name}</h6>
+                        <div class="story-container hidden mt-2 space-y-2">
+                            ${storiesHtml}
+                            <div class="text-center mt-4">
+                                <button class="generate-stories-btn btn-secondary py-1 px-3 rounded-full text-xs">✨Get More Stories✨</button>
+                                <div class="story-loading-spinner hidden loading-spinner mx-auto mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            activityCol.innerHTML = `
+                <div class="story-map-activity p-4 rounded-lg text-center font-bold cursor-pointer" data-activity-index="${activityIndex}">
+                    ${activityData.activity}
+                </div>
+                <div class="steps-container hidden flex-col gap-2">
+                    ${stepsHtml}
+                </div>
+            `;
+            storyMapContainer.appendChild(activityCol);
+        });
+        addStoryMapListeners();
+        addReleaseSlices();
+    }
+
+    function addStoryMapListeners() {
+        document.querySelectorAll('.story-map-activity').forEach(el => {
+            el.addEventListener('click', () => {
+                el.nextElementSibling.classList.toggle('hidden');
+                el.nextElementSibling.classList.toggle('flex');
+            });
+        });
+
+        document.querySelectorAll('.story-map-step').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent activity click from triggering
+                el.querySelector('.story-container').classList.toggle('hidden');
+            });
+        });
+
+        // User Story Refinement Suggestions Logic
+        document.querySelectorAll('.generate-stories-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation(); // Prevent step click from triggering
+                const stepEl = e.target.closest('.story-map-step');
+                const activityIndex = stepEl.dataset.activityIndex;
+                const stepIndex = stepEl.dataset.stepIndex;
+                const activityName = storyMapData[activityIndex].activity;
+                const stepName = storyMapData[activityIndex].steps[stepIndex].name;
+                const storyContainer = stepEl.querySelector('.story-container');
+                const loadingSpinner = stepEl.querySelector('.story-loading-spinner');
+
+                btn.classList.add('hidden');
+                loadingSpinner.classList.remove('hidden');
+
+                const prompt = `Please generate 3-5 additional user stories for the following user activity and step of an e-commerce platform. Focus on different aspects or edge cases. Present each story in the format: "As a [role], I want to [function], so that [value]." Separate each story with a newline.
+
+User activity: ${activityName}
+User step: ${stepName}`;
+
+                const generatedText = await callGeminiApi(prompt);
+                
+                loadingSpinner.classList.add('hidden');
+                btn.classList.remove('hidden');
+
+                if (generatedText) {
+                    const newStories = generatedText.split('\n').filter(s => s.trim() !== '');
+                    newStories.forEach(storyText => {
+                        const storyEl = document.createElement('div');
+                        storyEl.className = 'story-map-story p-3 rounded-md shadow-sm text-sm bg-blue-50 border-left-4 border-blue-300'; // Highlight generated stories
+                        storyEl.textContent = storyText.trim();
+                        storyContainer.insertBefore(storyEl, btn.parentNode); // Insert before the button
+                    });
+                } else {
+                    const errorEl = document.createElement('div');
+                    errorEl.className = 'text-red-500 text-xs mt-2';
+                    errorEl.textContent = 'Failed to generate more stories, please try again later.';
+                    storyContainer.insertBefore(errorEl, btn.parentNode);
+                }
+            });
+        });
+    }
+
+    function addReleaseSlices() {
+        const releaseLines = {
+            mvp: { top: 0, label: 'MVP' },
+            v1: { top: 0, label: 'Version 1.0' },
+            v2: { top: 0, label: 'Version 2.0' },
+        };
+
+        let maxMvpTop = 0;
+        let maxV1Top = 0;
+
+        document.querySelectorAll('.story-map-story').forEach(storyEl => {
+            const release = storyEl.dataset.release;
+            const top = storyEl.offsetTop + storyEl.offsetHeight;
+            if (release === 'mvp' && top > maxMvpTop) {
+                maxMvpTop = top;
+            }
+            if ((release === 'mvp' || release === 'v1') && top > maxV1Top) {
+                maxV1Top = top;
+            }
+        });
+
+        const sliceContainer = document.getElementById('slice-container');
+        sliceContainer.innerHTML = `
+            <div class="release-slice hidden absolute w-full" style="top: ${maxMvpTop + 20}px;">
+                <span class="bg-[#AD8B73] text-white text-xs font-bold px-2 py-1 rounded-r-full">MVP - Core Experience</span>
+            </div>
+            <div class="release-slice hidden absolute w-full" style="top: ${maxV1Top + 20}px;">
+                <span class="bg-[#AD8B73] text-white text-xs font-bold px-2 py-1 rounded-r-full">V1.0 - Refined Features</span>
+            </div>
+        `;
+
+        document.getElementById('release-toggle').addEventListener('change', (e) => {
+            document.querySelectorAll('.release-slice').forEach(slice => {
+                slice.classList.toggle('hidden', !e.target.checked);
+            });
+        });
+    }
+
+    const backlogItemsContainer = document.getElementById('backlog-items');
+    function renderBacklog(filter = 'all') {
+        backlogItemsContainer.innerHTML = '';
+        const filteredItems = filter === 'all' ? backlogData : backlogData.filter(item => item.priority === filter);
+        
+        if (filteredItems.length === 0) {
+            backlogItemsContainer.innerHTML = `<p class="text-gray-500 text-center p-4">No items with this priority.</p>`;
+            return;
+        }
+
+        filteredItems.forEach(item => {
+            const itemEl = document.createElement('div');
+            let priorityClass = '';
+            let priorityText = '';
+            switch(item.priority) {
+                case 'must': priorityClass = 'border-red-500'; priorityText = 'Must'; break;
+                case 'should': priorityClass = 'border-orange-500'; priorityText = 'Should'; break;
+                case 'could': priorityClass = 'border-yellow-500'; priorityText = 'Could'; break;
+            }
+            itemEl.className = `p-3 bg-white rounded-md border-l-4 ${priorityClass} shadow-sm flex justify-between items-center`;
+            itemEl.innerHTML = `
+                <span>${item.text}</span>
+                <span class="text-xs font-bold text-gray-500">${priorityText}</span>
+            `;
+            backlogItemsContainer.appendChild(itemEl);
+        });
+    }
+
+    document.getElementById('moscow-filters').addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+            const priority = e.target.dataset.priority;
+            document.querySelectorAll('#moscow-filters button').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            renderBacklog(priority);
+        }
+    });
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section[id]');
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 65) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').includes(current)) {
+                link.classList.add('active');
+            }
+        });
+    });
+
+    renderStoryMap();
+    renderBacklog();
+});
+</script>
+
+</body>
+</html>
